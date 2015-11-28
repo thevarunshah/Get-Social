@@ -1,3 +1,8 @@
+.metadata/
+GetSocialServer/target
+GetSocialClient/target
+docs/
+RemoteSystemsTempFiles/
 *.class
 
 # Mobile Tools for Java (J2ME)
