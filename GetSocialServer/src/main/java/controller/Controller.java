@@ -15,10 +15,19 @@ public class Controller {
 
 	Directory directory;
 	
+	/**
+	 * Constructor to initiate the directory from disk or create a blank one
+	 */
 	public Controller() {
 		this.directory = Directory.get();
 	}
     
+	/**
+	 * Register a client's username and ip to the directory
+	 * @param username The username to register
+	 * @param request
+	 * @return String Username registered or already exists
+	 */
     @RequestMapping("/register")
     public ResponseEntity<String> register(@RequestParam(value="username", required=true) String username, HttpServletRequest request){
     	
@@ -30,31 +39,52 @@ public class Controller {
     	return new ResponseEntity<String>("Successfully registered!", HttpStatus.OK);
     }
     
-    @RequestMapping("/isValidUser")
-    public ResponseEntity<String> isValidUser(@RequestParam(value="username", required=true) String username, HttpServletRequest request){
+    /**
+     * Login a client and update their ip address
+     * @param auth The username of the client to login
+     * @param request
+     * @return String Authentication successful/failed
+     */
+    @RequestMapping("/loginUser")
+    public ResponseEntity<String> checkUser(@RequestParam(value="auth", required=true) String auth, HttpServletRequest request){
     	
-    	if(this.directory.isRegistered(username)) {
-    		return new ResponseEntity<String>("Username valid.", HttpStatus.OK);
-    	}
-    	
-    	return new ResponseEntity<String>("Could not find username.", HttpStatus.BAD_REQUEST);
-    }
-    
-    @RequestMapping("/checkUser")
-    public ResponseEntity<String> checkUser(@RequestParam(value="username", required=true) String username, HttpServletRequest request){
-    	
-    	if(this.directory.isRegistered(username)){
-    		/** TODO
-    		 * Probably shouldn't be updating the user IP here
-    		 */
+    	if(this.directory.isRegistered(auth)){
     		String userIP = request.getRemoteAddr();
-    		this.directory.updateUserIP(username, userIP);
-    		return new ResponseEntity<String>("Username valid.", HttpStatus.OK);
+    		this.directory.updateUserIP(auth, userIP);
+    		return new ResponseEntity<String>("Authentication successful.", HttpStatus.OK);
     	}
     	
-    	return new ResponseEntity<String>("Could not find username.", HttpStatus.BAD_REQUEST);
+    	return new ResponseEntity<String>("Authentication failed.", HttpStatus.UNAUTHORIZED);
     }
     
+    /**
+     * Determines if a username is registered with the directory
+     * @param auth The username of the client requesting the information
+     * @param username The username to look up
+     * @param request
+     * @return String Username valid or invalid.
+     */
+    @RequestMapping("/isValidUser")
+    public ResponseEntity<String> isValidUser(@RequestParam(value="auth", required=true) String auth, @RequestParam(value="username", required=true) String username, HttpServletRequest request){
+    	
+    	if(this.directory.isRegistered(auth)){
+    		String authIP = request.getRemoteAddr();
+    		this.directory.updateUserIP(auth, authIP);
+	    	if(this.directory.isRegistered(username)) {
+	    		return new ResponseEntity<String>("Username valid.", HttpStatus.OK);
+	    	}
+	    	return new ResponseEntity<String>("Username invalid.", HttpStatus.NOT_FOUND);
+    	}
+    	
+    	return new ResponseEntity<String>("Authentication failed.", HttpStatus.UNAUTHORIZED);
+    }
+    
+    /**
+     * Gets a list of all usernames registered with the directory
+     * @param auth The username of the client requesting the list
+     * @param request
+     * @return List<String> list of registered usernames
+     */
     @RequestMapping("/getUsernames")
     public ResponseEntity<List<String>> getUsernames(@RequestParam(value="auth", required=true) String auth, HttpServletRequest request){
     	
@@ -64,7 +94,7 @@ public class Controller {
     		return new ResponseEntity<List<String>>(this.directory.registeredUsers, HttpStatus.OK);
     	}
     	
-    	return new ResponseEntity("Username not valid.", HttpStatus.BAD_REQUEST);
+    	return new ResponseEntity("Authentication failed.", HttpStatus.UNAUTHORIZED);
     }
     
     /**
@@ -89,7 +119,7 @@ public class Controller {
     		return new ResponseEntity<String>("Username not valid.", HttpStatus.BAD_REQUEST);
     	}
     	
-    	return new ResponseEntity<String>("User not valid.", HttpStatus.BAD_REQUEST);
+    	return new ResponseEntity<String>("Authentication failed.", HttpStatus.UNAUTHORIZED);
     }
     
     
