@@ -1,9 +1,6 @@
 package controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,28 +13,42 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Controller {
 
-	List<String> registeredUsers = new ArrayList<String>();
-	Map<String, String> userIPMap = new HashMap<String, String>();
+	Directory directory;
+	
+	public Controller() {
+		this.directory = Directory.get();
+	}
     
     @RequestMapping("/register")
     public ResponseEntity<String> register(@RequestParam(value="username", required=true) String username, HttpServletRequest request){
     	
     	String userIP = request.getRemoteAddr();
-    	if(registeredUsers.contains(username)){
+    	if(this.directory.isRegistered(username)){
     		return new ResponseEntity<String>("Username already exists.", HttpStatus.BAD_REQUEST);
     	}
-    	
-    	registeredUsers.add(username);
-    	userIPMap.put(username, userIP);
+    	this.directory.register(username, userIP);
     	return new ResponseEntity<String>("Successfully registered!", HttpStatus.OK);
+    }
+    
+    @RequestMapping("/isValidUser")
+    public ResponseEntity<String> isValidUser(@RequestParam(value="username", required=true) String username, HttpServletRequest request){
+    	
+    	if(this.directory.isRegistered(username)) {
+    		return new ResponseEntity<String>("Username valid.", HttpStatus.OK);
+    	}
+    	
+    	return new ResponseEntity<String>("Could not find username.", HttpStatus.BAD_REQUEST);
     }
     
     @RequestMapping("/checkUser")
     public ResponseEntity<String> checkUser(@RequestParam(value="username", required=true) String username, HttpServletRequest request){
     	
-    	String userIP = request.getRemoteAddr();
-    	if(registeredUsers.contains(username)){
-        	userIPMap.put(username, userIP);
+    	if(this.directory.isRegistered(username)){
+    		/** TODO
+    		 * Probably shouldn't be updating the user IP here
+    		 */
+    		String userIP = request.getRemoteAddr();
+    		this.directory.updateUserIP(username, userIP);
     		return new ResponseEntity<String>("Username valid.", HttpStatus.OK);
     	}
     	
@@ -45,31 +56,41 @@ public class Controller {
     }
     
     @RequestMapping("/getUsernames")
-    public ResponseEntity<List<String>> getUsernames(@RequestParam(value="username", required=true) String username, HttpServletRequest request){
+    public ResponseEntity<List<String>> getUsernames(@RequestParam(value="auth", required=true) String auth, HttpServletRequest request){
     	
-    	String userIP = request.getRemoteAddr();
-    	if(registeredUsers.contains(username)){
-    		userIPMap.put(username, userIP);
-    		return new ResponseEntity<List<String>>(registeredUsers, HttpStatus.OK);
+    	if(this.directory.isRegistered(auth)){
+    		String authIP = request.getRemoteAddr();
+    		this.directory.updateUserIP(auth, authIP);
+    		return new ResponseEntity<List<String>>(this.directory.registeredUsers, HttpStatus.OK);
     	}
     	
     	return new ResponseEntity("Username not valid.", HttpStatus.BAD_REQUEST);
     }
     
+    /**
+     * Retrieves the IP address for a user
+     * @param auth The username of the client requesting the IP 
+     * @param username The username to retrieve the IP of
+     * @param request
+     * @return String the IP address of the given username
+     */
     @RequestMapping("/getUserIP")
-    public ResponseEntity<String> getUserIP(@RequestParam(value="user", required=true) String user, 
+    public ResponseEntity<String> getUserIP(@RequestParam(value="auth", required=true) String auth, 
     		@RequestParam(value="username", required=true) String username, HttpServletRequest request){
     	
-    	String userIP = request.getRemoteAddr();
-    	if(registeredUsers.contains(user)){
+    	if(this.directory.isRegistered(auth)){
     		
-    		userIPMap.put(user, userIP);
-    		if(registeredUsers.contains(username)){
-    			return new ResponseEntity<String>(userIPMap.get(username), HttpStatus.OK);
+    		String authIP = request.getRemoteAddr();
+    		this.directory.updateUserIP(auth, authIP);
+    		
+    		if(this.directory.isRegistered(username)){
+    			return new ResponseEntity<String>(this.directory.getUserIP(username), HttpStatus.OK);
     		}
     		return new ResponseEntity<String>("Username not valid.", HttpStatus.BAD_REQUEST);
     	}
     	
     	return new ResponseEntity<String>("User not valid.", HttpStatus.BAD_REQUEST);
     }
+    
+    
 }
