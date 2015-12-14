@@ -24,13 +24,13 @@ public class Controller {
     }
     
     @RequestMapping("/getUpdates")
-    public ResponseEntity<List<String>> getUpdates(@RequestParam(value="username", required=true) String username){
+    public ResponseEntity<List<String>> getUpdates(@RequestParam(value="auth", required=true) String auth){
     	
-    	if(!Backend.isValidUser(username)){
-    		return new ResponseEntity("Invalid username - please make sure you are registered with the server", HttpStatus.BAD_REQUEST);
+    	if(Backend.isValidUser(auth)){
+    		return new ResponseEntity<List<String>>(updates, HttpStatus.OK);
     	}
     	
-    	return new ResponseEntity<List<String>>(updates, HttpStatus.OK);
+    	return new ResponseEntity("Invalid username - please make sure you are registered with the server", HttpStatus.UNAUTHORIZED);
     }
     
     @RequestMapping("/fetchUpdates")

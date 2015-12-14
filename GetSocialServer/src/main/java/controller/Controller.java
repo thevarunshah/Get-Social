@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import directory.Directory;
+
 @RestController
 public class Controller {
 
@@ -31,11 +33,10 @@ public class Controller {
     @RequestMapping("/register")
     public ResponseEntity<String> register(@RequestParam(value="username", required=true) String username, HttpServletRequest request){
     	
-    	String userIP = request.getRemoteAddr();
     	if(this.directory.isRegistered(username)){
     		return new ResponseEntity<String>("Username already exists.", HttpStatus.BAD_REQUEST);
     	}
-    	this.directory.register(username, userIP);
+    	this.directory.register(username, request.getRemoteAddr(), request.getRemotePort());
     	return new ResponseEntity<String>("Successfully registered!", HttpStatus.OK);
     }
     
@@ -46,11 +47,10 @@ public class Controller {
      * @return String Authentication successful/failed
      */
     @RequestMapping("/loginUser")
-    public ResponseEntity<String> checkUser(@RequestParam(value="auth", required=true) String auth, HttpServletRequest request){
+    public ResponseEntity<String> checkUser(@RequestParam(value="auth", required=true) String auth, @RequestParam(value="port", required=true) int port, HttpServletRequest request){
     	
     	if(this.directory.isRegistered(auth)){
-    		String userIP = request.getRemoteAddr();
-    		this.directory.updateUserIP(auth, userIP);
+    		this.directory.updateUser(auth, request.getRemoteAddr(), port);
     		return new ResponseEntity<String>("Authentication successful.", HttpStatus.OK);
     	}
     	
@@ -68,8 +68,7 @@ public class Controller {
     public ResponseEntity<String> isValidUser(@RequestParam(value="auth", required=true) String auth, @RequestParam(value="username", required=true) String username, HttpServletRequest request){
     	
     	if(this.directory.isRegistered(auth)){
-    		String authIP = request.getRemoteAddr();
-    		this.directory.updateUserIP(auth, authIP);
+    		this.directory.updateUser(auth, request.getRemoteAddr());
 	    	if(this.directory.isRegistered(username)) {
 	    		return new ResponseEntity<String>("Username valid.", HttpStatus.OK);
 	    	}
@@ -89,8 +88,7 @@ public class Controller {
     public ResponseEntity<List<String>> getUsernames(@RequestParam(value="auth", required=true) String auth, HttpServletRequest request){
     	
     	if(this.directory.isRegistered(auth)){
-    		String authIP = request.getRemoteAddr();
-    		this.directory.updateUserIP(auth, authIP);
+    		this.directory.updateUser(auth, request.getRemoteAddr());
     		return new ResponseEntity<List<String>>(this.directory.registeredUsers, HttpStatus.OK);
     	}
     	
@@ -110,8 +108,7 @@ public class Controller {
     	
     	if(this.directory.isRegistered(auth)){
     		
-    		String authIP = request.getRemoteAddr();
-    		this.directory.updateUserIP(auth, authIP);
+    		this.directory.updateUser(auth, request.getRemoteAddr());
     		
     		if(this.directory.isRegistered(username)){
     			return new ResponseEntity<String>(this.directory.getUserIP(username), HttpStatus.OK);

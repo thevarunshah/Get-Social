@@ -14,11 +14,11 @@ import controller.Application;
 
 public class Backend {
 	
-	public static String server = "http://192.168.1.23:8080";
+	public static String server = "http://localhost:8080";
     
     public static boolean isValidUser(String username){
     	
-    	HttpResponse response = get(server + "/checkUser?username=" + username);
+    	HttpResponse response = get(server + "/isValidUser?auth=" + Application.username + "&username=" + username);
     	
     	if(response.getStatusLine().getStatusCode() != 200){
     		return false;
@@ -28,7 +28,7 @@ public class Backend {
     
     public static ResponseEntity<String> getUsernames(){
     	
-    	HttpResponse response = get(server + "/getUsernames?username=" + Application.username);
+    	HttpResponse response = get(server + "/getUsernames?auth=" + Application.username);
     	if(response.getStatusLine().getStatusCode() != 200){
     		return new ResponseEntity<String>("Something went wrong, please try again.", HttpStatus.BAD_REQUEST);
     	}
@@ -39,13 +39,13 @@ public class Backend {
     
     public static ResponseEntity<String> getUpdates(String username){
     	
-    	HttpResponse ipResponse = get(server + "/getUserIP?user=" + Application.username + "&username=" + username);
+    	HttpResponse ipResponse = get(server + "/getUserIP?auth=" + Application.username + "&username=" + username);
     	if(ipResponse.getStatusLine().getStatusCode() != 200){
     		return new ResponseEntity<String>("Couldn't find a valid user with the given username.", HttpStatus.BAD_REQUEST);
     	}
     	String userIP = extractResponse(ipResponse);
-    	
-    	HttpResponse response = get("http://" + userIP + ":9001/getUpdates?username=" + Application.username);
+    	System.out.println(userIP);
+    	HttpResponse response = get("http://" + userIP + "/getUpdates?auth=" + Application.username);
     	if(response.getStatusLine().getStatusCode() != 200){
     		return new ResponseEntity<String>("Something went wrong, please try again.", HttpStatus.BAD_REQUEST);
     	}

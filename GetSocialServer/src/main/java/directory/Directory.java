@@ -1,4 +1,4 @@
-package controller;
+package directory;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,19 +14,19 @@ import java.util.Map;
 public class Directory implements Serializable {
 
 	private static final String SAVE_LOCATION = "data/directory.ser";
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 	
-	List<String> registeredUsers = new ArrayList<String>();
-	Map<String, String> userIPMap = new HashMap<String, String>();
+	public List<String> registeredUsers = new ArrayList<String>();
+	private Map<String, User> userMap = new HashMap<String, User>();
 
 	public Directory() {
 		this.registeredUsers = new ArrayList<String>();
-		this.userIPMap = new HashMap<String, String>();
+		this.userMap = new HashMap<String, User>();
 	}
 
-	public Directory(List<String> registeredUsers, Map<String, String> userIPMap) {
+	public Directory(List<String> registeredUsers, Map<String, User> userMap) {
 		this.registeredUsers = registeredUsers;
-		this.userIPMap = userIPMap;
+		this.userMap = userMap;
 	}
 	
 	
@@ -39,19 +39,28 @@ public class Directory implements Serializable {
 		return this.registeredUsers.contains(username);
 	}
 
-	public void register(String username, String userIP) {
+	public void register(String username, String userIP, int port) {
 		registeredUsers.add(username);
-		userIPMap.put(username, userIP);
+		userMap.put(username, new User(username, userIP, port));
 		Directory.save(this);
 	}
 
-	public void updateUserIP(String username, String userIP) {
-		userIPMap.put(username, userIP);
+	public void updateUser(String username, String userIP, int port) {
+		User u = userMap.get(username);
+		u.ip = userIP;
+		u.port = port;
+		Directory.save(this);
+	}
+	
+	public void updateUser(String username, String userIP) {
+		User u = userMap.get(username);
+		u.ip = userIP;
 		Directory.save(this);
 	}
 
 	public String getUserIP(String username) {
-		return userIPMap.get(username);
+		User u = userMap.get(username);
+		return u.ip + ":" + u.port;
 	}
 
 	
