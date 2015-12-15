@@ -1,6 +1,5 @@
 package controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -14,12 +13,19 @@ import backend.Backend;
 @RestController
 public class Controller {
 
-	private List<String> updates = new ArrayList<String>();
+	private Profile profile;
+	
+	/**
+	 * Constructor to initiate the profile from disk for this username or create a blank one
+	 */
+	public Controller() {
+		this.profile = Profile.get(Application.username);
+	}
 	
     @RequestMapping("/postUpdate")
     public ResponseEntity<String> postUpdate(@RequestParam(value="message", required=true) String message){
     	
-    	updates.add(message);
+    	profile.post(message);
         return new ResponseEntity<String>("Message added to updates.", HttpStatus.OK);
     }
     
@@ -27,7 +33,7 @@ public class Controller {
     public ResponseEntity<List<String>> getUpdates(@RequestParam(value="auth", required=true) String auth){
     	
     	if(Backend.isValidUser(auth)){
-    		return new ResponseEntity<List<String>>(updates, HttpStatus.OK);
+    		return new ResponseEntity<List<String>>(profile.getUpdates(), HttpStatus.OK);
     	}
     	
     	return new ResponseEntity("Invalid username - please make sure you are registered with the server", HttpStatus.UNAUTHORIZED);
