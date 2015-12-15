@@ -38,10 +38,10 @@ public class Controller {
     			Backend.updateReputation();
 	    		return new ResponseEntity<List<String>>(profile.getUpdates(), HttpStatus.OK);
     		}
-    		return new ResponseEntity("You do not have a high enough reputation to receive my updated", HttpStatus.UNAUTHORIZED);
+    		return new ResponseEntity("You do not have a high enough reputation to receive my updates.", HttpStatus.UNAUTHORIZED);
     	}
     	
-    	return new ResponseEntity("Invalid username - please make sure you are registered with the server", HttpStatus.UNAUTHORIZED);
+    	return new ResponseEntity("Invalid username - please make sure you are registered with the server.", HttpStatus.UNAUTHORIZED);
     }
     
     @RequestMapping("/fetchUpdates")
@@ -57,12 +57,12 @@ public class Controller {
     }
     
     @RequestMapping("/reportUser")
-    public ResponseEntity reportUser(@RequestParam(value="username", required=true) String username){
+    public ResponseEntity<String> reportUser(@RequestParam(value="username", required=true) String username){
     	
     	if(Backend.reportUser(username)){
-    		return new ResponseEntity(HttpStatus.OK);
+    		return new ResponseEntity<String>("User reported successfully!", HttpStatus.OK);
     	}
     	
-    	return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    	return new ResponseEntity<String>("Could not report the user.", HttpStatus.BAD_REQUEST);
     }
 }

@@ -150,17 +150,17 @@ public class Controller {
      * @return String success/unauthorized
      */
     @RequestMapping("/incrUserRep")
-    public ResponseEntity incrUserRep(@RequestParam(value="auth", required=true) String auth, HttpServletRequest request){
+    public ResponseEntity<String> incrUserRep(@RequestParam(value="auth", required=true) String auth, HttpServletRequest request){
     	
     	if(this.directory.isRegistered(auth)){
     		
     		this.directory.updateUser(auth, request.getRemoteAddr());
     		this.directory.incrUserRep(auth);
     		
-    		return new ResponseEntity(HttpStatus.OK);
+    		return new ResponseEntity<String>("User reputation increased successfully!", HttpStatus.OK);
     	}
     	
-    	return new ResponseEntity("Authentication failed.", HttpStatus.UNAUTHORIZED);
+    	return new ResponseEntity<String>("Authentication failed.", HttpStatus.UNAUTHORIZED);
     }
     
     /**
@@ -171,7 +171,7 @@ public class Controller {
      * @return String success/failed/unauthorized
      */
     @RequestMapping("/decrUserRep")
-    public ResponseEntity decrUserRep(@RequestParam(value="auth", required=true) String auth, 
+    public ResponseEntity<String> decrUserRep(@RequestParam(value="auth", required=true) String auth, 
     		@RequestParam(value="username", required=true) String username, HttpServletRequest request){
     	
     	if(this.directory.isRegistered(auth)){
@@ -180,11 +180,11 @@ public class Controller {
     		
     		if(this.directory.isRegistered(username)){
     			this.directory.decrUserRep(username);
-    			return new ResponseEntity(HttpStatus.OK);
+    			return new ResponseEntity<String>("User reputation decreased successfully!", HttpStatus.OK);
     		}
-    		return new ResponseEntity("Username not valid.", HttpStatus.BAD_REQUEST);
+    		return new ResponseEntity<String>("Username not valid.", HttpStatus.BAD_REQUEST);
     	}
     	
-    	return new ResponseEntity("Authentication failed.", HttpStatus.UNAUTHORIZED);
+    	return new ResponseEntity<String>("Authentication failed.", HttpStatus.UNAUTHORIZED);
     }
 }
