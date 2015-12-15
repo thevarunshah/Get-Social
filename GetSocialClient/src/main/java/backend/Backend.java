@@ -26,6 +26,35 @@ public class Backend {
     	return true;
     }
     
+    public static boolean isReputedUser(String username){
+    	
+    	HttpResponse response = get(server + "/getUserRep?auth=" + Application.username + "&username=" + username);
+    	if(response.getStatusLine().getStatusCode() != 200){
+    		return false;
+    	}
+    	
+    	Integer reputation = Integer.parseInt(extractResponse(response));
+    	if(reputation >= 3){
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public static void updateReputation(){
+    	
+    	get(server + "/incrUserRep?auth=" + Application.username);
+    }
+    
+    public static boolean reportUser(String username){
+    	
+    	HttpResponse response = get(server + "/decrUserRep?auth=" + Application.username + "&username=" + username);
+    	
+    	if(response.getStatusLine().getStatusCode() != 200){
+    		return false;
+    	}
+    	return true;
+    }
+    
     public static ResponseEntity<String> getUsernames(){
     	
     	HttpResponse response = get(server + "/getUsernames?auth=" + Application.username);

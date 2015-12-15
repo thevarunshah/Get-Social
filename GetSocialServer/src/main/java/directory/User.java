@@ -9,11 +9,12 @@ public class User implements Serializable {
 	public String username;
 	public String ip;
 	public int port;
+	public int reputation;
 	
 	public User(String username, String ip, int port) {
 		this.username = username;
 		this.ip = ip;
 		this.port = port;
+		this.reputation = 5;
 	}
-
 }

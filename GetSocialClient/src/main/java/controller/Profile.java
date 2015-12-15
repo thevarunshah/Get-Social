@@ -41,12 +41,9 @@ public class Profile implements Serializable {
 		Profile.save(this);
 	}
 	
-	
-	
 	/*
 	 * Serialization Methods (Saving/Loading from disk)
 	 */
-
 	public static Profile get(String username) {
 		System.out.println("Getting profile for user " + username);
 		Profile p = null;
@@ -75,5 +72,4 @@ public class Profile implements Serializable {
 			i.printStackTrace();
 		}
 	}
-
 }

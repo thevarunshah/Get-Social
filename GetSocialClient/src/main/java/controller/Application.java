@@ -1,7 +1,6 @@
 package controller;
 
 import org.apache.http.HttpResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -49,6 +48,5 @@ public class Application {
      */
     public String getUsername(){
     	return username;
-    }
-    
+    } 
 }

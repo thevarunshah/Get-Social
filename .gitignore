@@ -1,7 +1,10 @@
 .metadata/
+.recommenders/
 GetSocialServer/target
 GetSocialClient/target
 docs/
+GetSocialServer/data/*
+GetSocialClient/data/*
 RemoteSystemsTempFiles/
 *.class
 

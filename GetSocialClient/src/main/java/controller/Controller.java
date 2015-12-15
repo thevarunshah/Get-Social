@@ -33,7 +33,12 @@ public class Controller {
     public ResponseEntity<List<String>> getUpdates(@RequestParam(value="auth", required=true) String auth){
     	
     	if(Backend.isValidUser(auth)){
-    		return new ResponseEntity<List<String>>(profile.getUpdates(), HttpStatus.OK);
+    		if(Backend.isReputedUser(auth)){
+	    		
+    			Backend.updateReputation();
+	    		return new ResponseEntity<List<String>>(profile.getUpdates(), HttpStatus.OK);
+    		}
+    		return new ResponseEntity("You do not have a high enough reputation to receive my updated", HttpStatus.UNAUTHORIZED);
     	}
     	
     	return new ResponseEntity("Invalid username - please make sure you are registered with the server", HttpStatus.UNAUTHORIZED);
@@ -49,5 +54,15 @@ public class Controller {
     public ResponseEntity<String> getUsernames(){
     	
     	return Backend.getUsernames();
+    }
+    
+    @RequestMapping("/reportUser")
+    public ResponseEntity reportUser(@RequestParam(value="username", required=true) String username){
+    	
+    	if(Backend.reportUser(username)){
+    		return new ResponseEntity(HttpStatus.OK);
+    	}
+    	
+    	return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 }

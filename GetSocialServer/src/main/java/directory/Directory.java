@@ -14,7 +14,7 @@ import java.util.Map;
 public class Directory implements Serializable {
 
 	private static final String SAVE_LOCATION = "data/directory.ser";
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 1L;
 	
 	public List<String> registeredUsers = new ArrayList<String>();
 	private Map<String, User> userMap = new HashMap<String, User>();
@@ -29,12 +29,9 @@ public class Directory implements Serializable {
 		this.userMap = userMap;
 	}
 	
-	
-	
 	/*
 	 * Directory access & update methods
 	 */
-
 	public boolean isRegistered(String username) {
 		return this.registeredUsers.contains(username);
 	}
@@ -62,13 +59,31 @@ public class Directory implements Serializable {
 		User u = userMap.get(username);
 		return u.ip + ":" + u.port;
 	}
+	
+	public void incrUserRep(String username) {
+		User u = userMap.get(username);
+		u.reputation++;
+		Directory.save(this);
+	}
+	
+	public void decrUserRep(String username) {
+		User u = userMap.get(username);
+		u.reputation--;
+		if(u.reputation < 0){
+			userMap.remove(username);
+		}
+		
+		Directory.save(this);
+	}
+	
+	public int getUserRep(String username) {
+		User u = userMap.get(username);
+		return u.reputation;
+	}
 
-	
-	
 	/*
 	 * Serialization Methods (Saving/Loading from disk)
 	 */
-
 	public static Directory get() {
 		Directory d = null;
 		try {
@@ -95,5 +110,4 @@ public class Directory implements Serializable {
 			i.printStackTrace();
 		}
 	}
-
 }

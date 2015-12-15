@@ -119,5 +119,72 @@ public class Controller {
     	return new ResponseEntity<String>("Authentication failed.", HttpStatus.UNAUTHORIZED);
     }
     
+    /**
+     * Retrieves the reputation for a user
+     * @param auth The username of the client requesting the reputation
+     * @param username The username to retrieve the reputation of
+     * @param request
+     * @return Integer the reputation of the given username
+     */
+    @RequestMapping("/getUserRep")
+    public ResponseEntity<Integer> getUserRep(@RequestParam(value="auth", required=true) String auth, 
+    		@RequestParam(value="username", required=true) String username, HttpServletRequest request){
+    	
+    	if(this.directory.isRegistered(auth)){
+    		
+    		this.directory.updateUser(auth, request.getRemoteAddr());
+    		
+    		if(this.directory.isRegistered(username)){
+    			return new ResponseEntity<Integer>(this.directory.getUserRep(username), HttpStatus.OK);
+    		}
+    		return new ResponseEntity("Username not valid.", HttpStatus.BAD_REQUEST);
+    	}
+    	
+    	return new ResponseEntity("Authentication failed.", HttpStatus.UNAUTHORIZED);
+    }
     
+    /**
+     * Increments the reputation for a user
+     * @param auth The username of the client requesting the reputation increase
+     * @param request
+     * @return String success/unauthorized
+     */
+    @RequestMapping("/incrUserRep")
+    public ResponseEntity incrUserRep(@RequestParam(value="auth", required=true) String auth, HttpServletRequest request){
+    	
+    	if(this.directory.isRegistered(auth)){
+    		
+    		this.directory.updateUser(auth, request.getRemoteAddr());
+    		this.directory.incrUserRep(auth);
+    		
+    		return new ResponseEntity(HttpStatus.OK);
+    	}
+    	
+    	return new ResponseEntity("Authentication failed.", HttpStatus.UNAUTHORIZED);
+    }
+    
+    /**
+     * Decrements the reputation for a user
+     * @param auth The username of the client requesting the reputation decrease
+     * @param username The username to decrement the reputation of
+     * @param request
+     * @return String success/failed/unauthorized
+     */
+    @RequestMapping("/decrUserRep")
+    public ResponseEntity decrUserRep(@RequestParam(value="auth", required=true) String auth, 
+    		@RequestParam(value="username", required=true) String username, HttpServletRequest request){
+    	
+    	if(this.directory.isRegistered(auth)){
+    		
+    		this.directory.updateUser(auth, request.getRemoteAddr());
+    		
+    		if(this.directory.isRegistered(username)){
+    			this.directory.decrUserRep(username);
+    			return new ResponseEntity(HttpStatus.OK);
+    		}
+    		return new ResponseEntity("Username not valid.", HttpStatus.BAD_REQUEST);
+    	}
+    	
+    	return new ResponseEntity("Authentication failed.", HttpStatus.UNAUTHORIZED);
+    }
 }
